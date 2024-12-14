@@ -77,3 +77,8 @@ Swagger: Para documentar a API REST.
 JUnit: Para testes.
 Postman: Para criação das collections.
 
+7. Subindo a aplicação no Docker
+
+Pelo prompt de comando vá até o diretório raiz do projeto, onde se encontra o arquivo docker-compose.yml, lá execute os comandos abaixo:
+
+docker-compose -f docker-compose.yml up -d
