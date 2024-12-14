@@ -1,9 +1,5 @@
 package com.cartao.miniautorizador.service;
 
-import java.security.KeyPair;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.util.NoSuchElementException;
 
 import org.springframework.stereotype.Service;
@@ -28,15 +24,15 @@ public class TransacaoService {
 	private final CartaoRepository cartaoRepository;
 
 	public TransacaoService(TransacaoRepository transacaoRepository, CartaoRepository cartaoRepository) {
-        this.transacaoRepository = transacaoRepository;
+		this.transacaoRepository = transacaoRepository;
 		this.cartaoRepository = cartaoRepository;
-    }
+	}
 
 	@Transactional
 	public String realizarTransacao(@Valid TransacaoRequest request) throws Exception {
 
 		try {
-			
+
 			Cartao cartao = buscaCartao(request.getNumeroCartao());
 			if (!RSAEncryption.decrypt(cartao.getSenha()).equals(request.getSenhaCartao())) {
 				throw new SenhaInvalidaException("SENHA_INVALIDA");
@@ -47,19 +43,20 @@ public class TransacaoService {
 			}
 
 			cartao.setSaldo(cartao.getSaldo().subtract(request.getValor()));
-			transacaoRepository.save(new Transacao(request.getNumeroCartao(), RSAEncryption.encrypt(request.getSenhaCartao()), request.getValor()));
+			transacaoRepository.save(new Transacao(request.getNumeroCartao(),
+					RSAEncryption.encrypt(request.getSenhaCartao()), request.getValor()));
 		} catch (CartaoNaoEncontradoException e) {
 			throw new CartaoNaoEncontradoException("CARTAO_INEXISTENTE");
 		}
 
 		return "OK";
 	}
-	
+
 	public Cartao buscaCartao(String numeroCartao) {
 		try {
 			return cartaoRepository.findByNumeroCartao(numeroCartao).get();
 		} catch (NoSuchElementException e) {
 			throw new CartaoNaoEncontradoException("CARTAO_INEXISTENTE");
-		}	
+		}
 	}
 }
